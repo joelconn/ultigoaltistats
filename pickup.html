@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pickup Stats</title>
+<style>
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+header { padding: 18px 20px 10px; }
+header h1 { margin: 0 0 2px; font-size: 22px; }
+header p { margin: 0; color: #999; font-size: 13px; }
+.sheets-link { display: inline-block; margin-top: 8px; color: #26ff66; font-size: 12px; font-weight: 700; text-decoration: none; }
+.sheets-link:hover { text-decoration: underline; }
+.tabs { display: flex; gap: 8px; padding: 0 20px 12px; overflow-x: auto; }
+.tab { padding: 8px 16px; border-radius: 8px; background: #1a1a1a; color: #999; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; border: none; }
+.tab.active { background: #26ff66; color: #000; }
+.panel { display: none; padding: 0 20px 40px; }
+.panel.active { display: block; }
+select { background: #1a1a1a; color: #fff; border: 1px solid #333; border-radius: 8px; padding: 8px 10px; font-size: 14px; margin-bottom: 14px; }
+.summary-cards { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.card { background: #1a1a1a; border-radius: 10px; padding: 12px 16px; min-width: 110px; }
+.card .label { color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+.card .value { font-size: 22px; font-weight: 800; margin-top: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 8px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid #222; }
+th:first-child, td:first-child { text-align: left; position: sticky; left: 0; background: #000; }
+th { color: #999; font-weight: 700; cursor: pointer; user-select: none; font-size: 11px; text-transform: uppercase; }
+th:hover { color: #26ff66; }
+th.sorted::after { content: ' \25BC'; }
+th.sorted-asc::after { content: ' \25B2'; }
+tbody tr:hover { background: #111; }
+td.editable { cursor: text; }
+td.editable:focus { outline: 1px solid #26ff66; background: #0a1a0a; }
+td.edited { color: #ffd400; }
+.table-wrap { overflow-x: auto; border: 1px solid #222; border-radius: 10px; }
+.toolbar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+button.action { background: #1a1a1a; color: #26ff66; border: 1px solid #26ff66; border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer; }
+button.action:hover { background: #102; }
+.hint { color: #777; font-size: 11px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const DATA = {"games":[{"date":"Jun 16, 2026","id":"15A8C7F3-AF28-47C6-9A91-7B22118D3270","label":"Jun 16, 2026 — Game 1 (5-2)","mode":"Ultimate","opponent":"Game 1","ourScore":5,"players":[{"assistAttempts":0,"assists":1,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":3,"completions":4,"dPlusMinus":0,"dPoints":0,"drops":0,"goals":0,"greatests":0,"id":"C8F47881-6FB6-479C-945F-6BE29474CBF5","minutesPlayed":0,"name":"Aaron","number":"","oPlusMinus":1,"oPoints":2,"plusMinus":1,"pointsPlayed":2,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":3,"completions":3,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"35F92609-A916-4B58-8B8F-7C69F8F3AA83","minutesPlayed":0,"name":"Annie","number":"","oPlusMinus":0,"oPoints":1,"plusMinus":0,"pointsPlayed":2,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":1,"completions":0,"dPlusMinus":0,"dPoints":0,"drops":0,"goals":0,"greatests":0,"id":"4927D095-FA8B-43BC-8EFE-A9BF66D80094","minutesPlayed":0,"name":"Buell","number":"","oPlusMinus":0,"oPoints":1,"plusMinus":0,"pointsPlayed":1,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":1,"completions":1,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"4EF50ACB-F301-4B4E-A4E3-91AA96E9F73C","minutesPlayed":0,"name":"Fred","number":"","oPlusMinus":0,"oPoints":1,"plusMinus":0,"pointsPlayed":2,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":2,"completions":1,"dPlusMinus":0,"dPoints":0,"drops":0,"goals":0,"greatests":0,"id":"4A30EE35-EAF4-4219-9131-F05C03C365F6","minutesPlayed":0,"name":"Jake","number":"","oPlusMinus":0,"oPoints":2,"plusMinus":0,"pointsPlayed":2,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":1,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":2,"completions":2,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"346430E5-B0E4-4BE6-A842-2C44E7702180","minutesPlayed":0,"name":"Joel","number":"","oPlusMinus":1,"oPoints":3,"plusMinus":1,"pointsPlayed":4,"pulls":1,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":2,"completions":1,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":1,"greatests":0,"id":"F06AC389-CD78-43A5-84A7-CCEBC4647B0B","minutesPlayed":0,"name":"Jude","number":"","oPlusMinus":1,"oPoints":2,"plusMinus":1,"pointsPlayed":3,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":1,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":6,"completions":7,"dPlusMinus":0,"dPoints":1,"drops":1,"goals":0,"greatests":0,"id":"0983158E-C9DF-4B56-9C84-2C7061307216","minutesPlayed":0,"name":"Kai","number":"","oPlusMinus":-1,"oPoints":3,"plusMinus":-1,"pointsPlayed":4,"pulls":1,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":1,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":2,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":6,"completions":7,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"E8582A6F-925A-4CA1-9E4B-918A13B4CB55","minutesPlayed":0,"name":"Max","number":"","oPlusMinus":2,"oPoints":3,"plusMinus":2,"pointsPlayed":4,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":7,"completions":5,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":3,"greatests":0,"id":"767C5837-4C56-411D-B21F-0F73444E6AB4","minutesPlayed":0,"name":"Nick M","number":"","oPlusMinus":3,"oPoints":3,"plusMinus":3,"pointsPlayed":4,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":4,"completions":6,"dPlusMinus":1,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"EE891BE3-8EAB-4F25-B455-644A4DEBDAAB","minutesPlayed":0,"name":"Sarah B","number":"","oPlusMinus":-1,"oPoints":2,"plusMinus":0,"pointsPlayed":3,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":1,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":1,"completions":1,"dPlusMinus":0,"dPoints":0,"drops":0,"goals":0,"greatests":0,"id":"ED3E6DAB-F92F-4EDE-9451-4846EFE76FC6","minutesPlayed":0,"name":"Sarah C","number":"","oPlusMinus":0,"oPoints":3,"plusMinus":0,"pointsPlayed":3,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":1,"completions":0,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":1,"greatests":0,"id":"0986ACC0-5E71-4E8C-8C89-C940A85EF7D6","minutesPlayed":0,"name":"Sean","number":"","oPlusMinus":1,"oPoints":3,"plusMinus":1,"pointsPlayed":4,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":1,"completions":2,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"34ADE7F4-6E26-41D5-93EA-C5497AEA5182","minutesPlayed":0,"name":"Vic","number":"","oPlusMinus":0,"oPoints":1,"plusMinus":0,"pointsPlayed":2,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0}],"theirScore":2,"tournament":"No Tournament","vicMode":false},{"date":"Jun 16, 2026","id":"11A244C9-5241-4BC8-B97C-BAD4504DDE29","label":"Jun 16, 2026 — Part 2 (2-8)","mode":"Ultimate","opponent":"Part 2","ourScore":2,"players":[{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":2,"completions":1,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"C8F47881-6FB6-479C-945F-6BE29474CBF5","minutesPlayed":0,"name":"Aaron","number":"","oPlusMinus":-2,"oPoints":2,"plusMinus":-2,"pointsPlayed":3,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":1,"completions":2,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"35F92609-A916-4B58-8B8F-7C69F8F3AA83","minutesPlayed":0,"name":"Annie","number":"","oPlusMinus":0,"oPoints":2,"plusMinus":0,"pointsPlayed":3,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":5,"completions":6,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"B63BF234-618E-4994-8CE0-8D11D2259B92","minutesPlayed":0,"name":"Brian K","number":"","oPlusMinus":-2,"oPoints":1,"plusMinus":-2,"pointsPlayed":2,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":1,"completions":0,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"4927D095-FA8B-43BC-8EFE-A9BF66D80094","minutesPlayed":0,"name":"Buell","number":"","oPlusMinus":-1,"oPoints":2,"plusMinus":-1,"pointsPlayed":3,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":1,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":2,"completions":2,"dPlusMinus":0,"dPoints":2,"drops":0,"goals":0,"greatests":0,"id":"FD7C3E31-5E8A-4B0E-AD73-0B24C232DD49","minutesPlayed":0,"name":"Cooper","number":"","oPlusMinus":0,"oPoints":0,"plusMinus":0,"pointsPlayed":2,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":0,"completions":0,"dPlusMinus":0,"dPoints":0,"drops":0,"goals":0,"greatests":0,"id":"38CB3796-B842-4D2C-8E11-01CE453182C4","minutesPlayed":0,"name":"Dave C","number":"","oPlusMinus":0,"oPoints":1,"plusMinus":0,"pointsPlayed":1,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":7,"completions":4,"dPlusMinus":0,"dPoints":2,"drops":0,"goals":0,"greatests":0,"id":"4A30EE35-EAF4-4219-9131-F05C03C365F6","minutesPlayed":0,"name":"Jake","number":"","oPlusMinus":-3,"oPoints":1,"plusMinus":-3,"pointsPlayed":3,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":3,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":5,"completions":4,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"346430E5-B0E4-4BE6-A842-2C44E7702180","minutesPlayed":0,"name":"Joel","number":"","oPlusMinus":-2,"oPoints":2,"plusMinus":-2,"pointsPlayed":3,"pulls":1,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":0,"completions":3,"dPlusMinus":1,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"0983158E-C9DF-4B56-9C84-2C7061307216","minutesPlayed":0,"name":"Kai","number":"","oPlusMinus":0,"oPoints":2,"plusMinus":1,"pointsPlayed":3,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":2,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":6,"completions":8,"dPlusMinus":0,"dPoints":3,"drops":0,"goals":0,"greatests":0,"id":"E8582A6F-925A-4CA1-9E4B-918A13B4CB55","minutesPlayed":0,"name":"Max","number":"","oPlusMinus":2,"oPoints":1,"plusMinus":2,"pointsPlayed":4,"pulls":1,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":4,"completions":4,"dPlusMinus":0,"dPoints":0,"drops":0,"goals":0,"greatests":0,"id":"9384EBE3-492E-4FEF-88F1-B4DC6A359809","minutesPlayed":0,"name":"Mike","number":"","oPlusMinus":-1,"oPoints":1,"plusMinus":-1,"pointsPlayed":1,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":1,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":6,"completions":7,"dPlusMinus":0,"dPoints":3,"drops":0,"goals":1,"greatests":0,"id":"767C5837-4C56-411D-B21F-0F73444E6AB4","minutesPlayed":0,"name":"Nick M","number":"","oPlusMinus":1,"oPoints":1,"plusMinus":1,"pointsPlayed":4,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":9,"completions":7,"dPlusMinus":0,"dPoints":4,"drops":0,"goals":1,"greatests":0,"id":"6CE04389-D9D9-4FBC-BBD7-141DEAA7157B","minutesPlayed":0,"name":"Oscar","number":"","oPlusMinus":-1,"oPoints":2,"plusMinus":-1,"pointsPlayed":6,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":4,"completions":4,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"EE891BE3-8EAB-4F25-B455-644A4DEBDAAB","minutesPlayed":0,"name":"Sarah B","number":"","oPlusMinus":0,"oPoints":2,"plusMinus":0,"pointsPlayed":3,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":2,"completions":2,"dPlusMinus":0,"dPoints":3,"drops":0,"goals":0,"greatests":0,"id":"ED3E6DAB-F92F-4EDE-9451-4846EFE76FC6","minutesPlayed":0,"name":"Sarah C","number":"","oPlusMinus":0,"oPoints":1,"plusMinus":0,"pointsPlayed":4,"pulls":3,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":0,"completions":1,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"0986ACC0-5E71-4E8C-8C89-C940A85EF7D6","minutesPlayed":0,"name":"Sean","number":"","oPlusMinus":0,"oPoints":1,"plusMinus":0,"pointsPlayed":2,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":3,"completions":2,"dPlusMinus":0,"dPoints":0,"drops":0,"goals":0,"greatests":0,"id":"34ADE7F4-6E26-41D5-93EA-C5497AEA5182","minutesPlayed":0,"name":"Vic","number":"","oPlusMinus":-1,"oPoints":3,"plusMinus":-1,"pointsPlayed":3,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":1,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0}],"theirScore":8,"tournament":"No Tournament","vicMode":false},{"date":"Jun 16, 2026","id":"C9BA7A27-E508-4810-BF09-C7308DD47E36","label":"Jun 16, 2026 — Game 2 (13-10)","mode":"Ultimate","opponent":"Game 2","ourScore":13,"players":[{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":0,"completions":1,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"C8F47881-6FB6-479C-945F-6BE29474CBF5","minutesPlayed":0,"name":"Aaron","number":"","oPlusMinus":0,"oPoints":2,"plusMinus":0,"pointsPlayed":3,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":8,"completions":9,"dPlusMinus":1,"dPoints":9,"drops":0,"goals":1,"greatests":0,"id":"B63BF234-618E-4994-8CE0-8D11D2259B92","minutesPlayed":0,"name":"Brian K","number":"","oPlusMinus":1,"oPoints":5,"plusMinus":2,"pointsPlayed":14,"pulls":3,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":2,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":9,"completions":5,"dPlusMinus":0,"dPoints":5,"drops":0,"goals":2,"greatests":0,"id":"4927D095-FA8B-43BC-8EFE-A9BF66D80094","minutesPlayed":0,"name":"Buell","number":"","oPlusMinus":2,"oPoints":6,"plusMinus":2,"pointsPlayed":11,"pulls":2,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":4,"completions":3,"dPlusMinus":0,"dPoints":2,"drops":1,"goals":1,"greatests":0,"id":"FD7C3E31-5E8A-4B0E-AD73-0B24C232DD49","minutesPlayed":0,"name":"Cooper","number":"","oPlusMinus":0,"oPoints":1,"plusMinus":0,"pointsPlayed":3,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":2,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":4,"completions":6,"dPlusMinus":0,"dPoints":4,"drops":0,"goals":0,"greatests":0,"id":"4EF50ACB-F301-4B4E-A4E3-91AA96E9F73C","minutesPlayed":0,"name":"Fred","number":"","oPlusMinus":2,"oPoints":6,"plusMinus":2,"pointsPlayed":10,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":7,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":23,"completions":29,"dPlusMinus":1,"dPoints":12,"drops":1,"goals":2,"greatests":0,"id":"346430E5-B0E4-4BE6-A842-2C44E7702180","minutesPlayed":0,"name":"Joel","number":"","oPlusMinus":7,"oPoints":11,"plusMinus":8,"pointsPlayed":23,"pulls":2,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":1,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":1,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":5,"completions":2,"dPlusMinus":1,"dPoints":8,"drops":0,"goals":3,"greatests":0,"id":"F06AC389-CD78-43A5-84A7-CCEBC4647B0B","minutesPlayed":0,"name":"Jude","number":"","oPlusMinus":4,"oPoints":8,"plusMinus":5,"pointsPlayed":16,"pulls":3,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":1,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":7,"completions":6,"dPlusMinus":1,"dPoints":4,"drops":0,"goals":2,"greatests":0,"id":"9384EBE3-492E-4FEF-88F1-B4DC6A359809","minutesPlayed":0,"name":"Mike","number":"","oPlusMinus":2,"oPoints":5,"plusMinus":3,"pointsPlayed":9,"pulls":1,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":1,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":11,"completions":9,"dPlusMinus":0,"dPoints":8,"drops":0,"goals":1,"greatests":0,"id":"EE891BE3-8EAB-4F25-B455-644A4DEBDAAB","minutesPlayed":0,"name":"Sarah B","number":"","oPlusMinus":0,"oPoints":8,"plusMinus":0,"pointsPlayed":16,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":1,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":4,"completions":3,"dPlusMinus":0,"dPoints":2,"drops":0,"goals":1,"greatests":0,"id":"ED3E6DAB-F92F-4EDE-9451-4846EFE76FC6","minutesPlayed":0,"name":"Sarah C","number":"","oPlusMinus":1,"oPoints":1,"plusMinus":1,"pointsPlayed":3,"pulls":1,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":0,"completions":2,"dPlusMinus":0,"dPoints":5,"drops":0,"goals":0,"greatests":0,"id":"0986ACC0-5E71-4E8C-8C89-C940A85EF7D6","minutesPlayed":0,"name":"Sean","number":"","oPlusMinus":0,"oPoints":2,"plusMinus":0,"pointsPlayed":7,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0}],"theirScore":10,"tournament":"No Tournament","vicMode":false}],"generatedAt":"Jun 17, 2026 at 3:34 PM","lifetime":[{"assistAttempts":0,"assists":1,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":5,"completions":6,"dPlusMinus":0,"dPoints":2,"drops":0,"goals":0,"greatests":0,"id":"C8F47881-6FB6-479C-945F-6BE29474CBF5","minutesPlayed":0,"name":"Aaron","number":"","oPlusMinus":-1,"oPoints":6,"plusMinus":-1,"pointsPlayed":8,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":4,"completions":5,"dPlusMinus":0,"dPoints":2,"drops":0,"goals":0,"greatests":0,"id":"35F92609-A916-4B58-8B8F-7C69F8F3AA83","minutesPlayed":0,"name":"Annie","number":"","oPlusMinus":0,"oPoints":3,"plusMinus":0,"pointsPlayed":5,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":13,"completions":15,"dPlusMinus":1,"dPoints":10,"drops":0,"goals":1,"greatests":0,"id":"B63BF234-618E-4994-8CE0-8D11D2259B92","minutesPlayed":0,"name":"Brian K","number":"","oPlusMinus":-1,"oPoints":6,"plusMinus":0,"pointsPlayed":16,"pulls":3,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":2,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":11,"completions":5,"dPlusMinus":0,"dPoints":6,"drops":0,"goals":2,"greatests":0,"id":"4927D095-FA8B-43BC-8EFE-A9BF66D80094","minutesPlayed":0,"name":"Buell","number":"","oPlusMinus":1,"oPoints":9,"plusMinus":1,"pointsPlayed":15,"pulls":2,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":3,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":6,"completions":5,"dPlusMinus":0,"dPoints":4,"drops":1,"goals":1,"greatests":0,"id":"FD7C3E31-5E8A-4B0E-AD73-0B24C232DD49","minutesPlayed":0,"name":"Cooper","number":"","oPlusMinus":0,"oPoints":1,"plusMinus":0,"pointsPlayed":5,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":0,"completions":0,"dPlusMinus":0,"dPoints":0,"drops":0,"goals":0,"greatests":0,"id":"38CB3796-B842-4D2C-8E11-01CE453182C4","minutesPlayed":0,"name":"Dave C","number":"","oPlusMinus":0,"oPoints":1,"plusMinus":0,"pointsPlayed":1,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":2,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":5,"completions":7,"dPlusMinus":0,"dPoints":5,"drops":0,"goals":0,"greatests":0,"id":"4EF50ACB-F301-4B4E-A4E3-91AA96E9F73C","minutesPlayed":0,"name":"Fred","number":"","oPlusMinus":2,"oPoints":7,"plusMinus":2,"pointsPlayed":12,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":9,"completions":5,"dPlusMinus":0,"dPoints":2,"drops":0,"goals":0,"greatests":0,"id":"4A30EE35-EAF4-4219-9131-F05C03C365F6","minutesPlayed":0,"name":"Jake","number":"","oPlusMinus":-3,"oPoints":3,"plusMinus":-3,"pointsPlayed":5,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":3,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":8,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":30,"completions":35,"dPlusMinus":1,"dPoints":14,"drops":1,"goals":2,"greatests":0,"id":"346430E5-B0E4-4BE6-A842-2C44E7702180","minutesPlayed":0,"name":"Joel","number":"","oPlusMinus":6,"oPoints":16,"plusMinus":7,"pointsPlayed":30,"pulls":4,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":3,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":1,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":7,"completions":3,"dPlusMinus":1,"dPoints":9,"drops":0,"goals":4,"greatests":0,"id":"F06AC389-CD78-43A5-84A7-CCEBC4647B0B","minutesPlayed":0,"name":"Jude","number":"","oPlusMinus":5,"oPoints":10,"plusMinus":6,"pointsPlayed":19,"pulls":3,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":1,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":6,"completions":10,"dPlusMinus":1,"dPoints":2,"drops":1,"goals":0,"greatests":0,"id":"0983158E-C9DF-4B56-9C84-2C7061307216","minutesPlayed":0,"name":"Kai","number":"","oPlusMinus":-1,"oPoints":5,"plusMinus":0,"pointsPlayed":7,"pulls":1,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":1,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":4,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":12,"completions":15,"dPlusMinus":0,"dPoints":4,"drops":0,"goals":0,"greatests":0,"id":"E8582A6F-925A-4CA1-9E4B-918A13B4CB55","minutesPlayed":0,"name":"Max","number":"","oPlusMinus":4,"oPoints":4,"plusMinus":4,"pointsPlayed":8,"pulls":1,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":1,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":11,"completions":10,"dPlusMinus":1,"dPoints":4,"drops":0,"goals":2,"greatests":0,"id":"9384EBE3-492E-4FEF-88F1-B4DC6A359809","minutesPlayed":0,"name":"Mike","number":"","oPlusMinus":1,"oPoints":6,"plusMinus":2,"pointsPlayed":10,"pulls":1,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":13,"completions":12,"dPlusMinus":0,"dPoints":4,"drops":0,"goals":4,"greatests":0,"id":"767C5837-4C56-411D-B21F-0F73444E6AB4","minutesPlayed":0,"name":"Nick M","number":"","oPlusMinus":4,"oPoints":4,"plusMinus":4,"pointsPlayed":8,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":9,"completions":7,"dPlusMinus":0,"dPoints":4,"drops":0,"goals":1,"greatests":0,"id":"6CE04389-D9D9-4FBC-BBD7-141DEAA7157B","minutesPlayed":0,"name":"Oscar","number":"","oPlusMinus":-1,"oPoints":2,"plusMinus":-1,"pointsPlayed":6,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":19,"completions":19,"dPlusMinus":1,"dPoints":10,"drops":0,"goals":1,"greatests":0,"id":"EE891BE3-8EAB-4F25-B455-644A4DEBDAAB","minutesPlayed":0,"name":"Sarah B","number":"","oPlusMinus":-1,"oPoints":12,"plusMinus":0,"pointsPlayed":22,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":7,"completions":6,"dPlusMinus":0,"dPoints":5,"drops":0,"goals":1,"greatests":0,"id":"ED3E6DAB-F92F-4EDE-9451-4846EFE76FC6","minutesPlayed":0,"name":"Sarah C","number":"","oPlusMinus":1,"oPoints":5,"plusMinus":1,"pointsPlayed":10,"pulls":4,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":1,"completions":3,"dPlusMinus":0,"dPoints":7,"drops":0,"goals":1,"greatests":0,"id":"0986ACC0-5E71-4E8C-8C89-C940A85EF7D6","minutesPlayed":0,"name":"Sean","number":"","oPlusMinus":1,"oPoints":6,"plusMinus":1,"pointsPlayed":13,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":4,"completions":4,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"34ADE7F4-6E26-41D5-93EA-C5497AEA5182","minutesPlayed":0,"name":"Vic","number":"","oPlusMinus":-1,"oPoints":4,"plusMinus":-1,"pointsPlayed":5,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":1,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0}],"team":{"gamesPlayed":3,"losses":1,"pointsAgainst":20,"pointsFor":20,"ties":0,"wins":2},"teamName":"Pickup","tournamentSummaries":[{"gamesPlayed":3,"losses":1,"name":"No Tournament","pointsAgainst":20,"pointsFor":20,"ties":0,"wins":2}],"tournaments":[{"gameCount":3,"name":"No Tournament","players":[{"assistAttempts":0,"assists":1,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":5,"completions":6,"dPlusMinus":0,"dPoints":2,"drops":0,"goals":0,"greatests":0,"id":"C8F47881-6FB6-479C-945F-6BE29474CBF5","minutesPlayed":0,"name":"Aaron","number":"","oPlusMinus":-1,"oPoints":6,"plusMinus":-1,"pointsPlayed":8,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":4,"completions":5,"dPlusMinus":0,"dPoints":2,"drops":0,"goals":0,"greatests":0,"id":"35F92609-A916-4B58-8B8F-7C69F8F3AA83","minutesPlayed":0,"name":"Annie","number":"","oPlusMinus":0,"oPoints":3,"plusMinus":0,"pointsPlayed":5,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":13,"completions":15,"dPlusMinus":1,"dPoints":10,"drops":0,"goals":1,"greatests":0,"id":"B63BF234-618E-4994-8CE0-8D11D2259B92","minutesPlayed":0,"name":"Brian K","number":"","oPlusMinus":-1,"oPoints":6,"plusMinus":0,"pointsPlayed":16,"pulls":3,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":2,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":11,"completions":5,"dPlusMinus":0,"dPoints":6,"drops":0,"goals":2,"greatests":0,"id":"4927D095-FA8B-43BC-8EFE-A9BF66D80094","minutesPlayed":0,"name":"Buell","number":"","oPlusMinus":1,"oPoints":9,"plusMinus":1,"pointsPlayed":15,"pulls":2,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":3,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":6,"completions":5,"dPlusMinus":0,"dPoints":4,"drops":1,"goals":1,"greatests":0,"id":"FD7C3E31-5E8A-4B0E-AD73-0B24C232DD49","minutesPlayed":0,"name":"Cooper","number":"","oPlusMinus":0,"oPoints":1,"plusMinus":0,"pointsPlayed":5,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":0,"completions":0,"dPlusMinus":0,"dPoints":0,"drops":0,"goals":0,"greatests":0,"id":"38CB3796-B842-4D2C-8E11-01CE453182C4","minutesPlayed":0,"name":"Dave C","number":"","oPlusMinus":0,"oPoints":1,"plusMinus":0,"pointsPlayed":1,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":2,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":5,"completions":7,"dPlusMinus":0,"dPoints":5,"drops":0,"goals":0,"greatests":0,"id":"4EF50ACB-F301-4B4E-A4E3-91AA96E9F73C","minutesPlayed":0,"name":"Fred","number":"","oPlusMinus":2,"oPoints":7,"plusMinus":2,"pointsPlayed":12,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":9,"completions":5,"dPlusMinus":0,"dPoints":2,"drops":0,"goals":0,"greatests":0,"id":"4A30EE35-EAF4-4219-9131-F05C03C365F6","minutesPlayed":0,"name":"Jake","number":"","oPlusMinus":-3,"oPoints":3,"plusMinus":-3,"pointsPlayed":5,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":3,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":8,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":30,"completions":35,"dPlusMinus":1,"dPoints":14,"drops":1,"goals":2,"greatests":0,"id":"346430E5-B0E4-4BE6-A842-2C44E7702180","minutesPlayed":0,"name":"Joel","number":"","oPlusMinus":6,"oPoints":16,"plusMinus":7,"pointsPlayed":30,"pulls":4,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":3,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":1,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":7,"completions":3,"dPlusMinus":1,"dPoints":9,"drops":0,"goals":4,"greatests":0,"id":"F06AC389-CD78-43A5-84A7-CCEBC4647B0B","minutesPlayed":0,"name":"Jude","number":"","oPlusMinus":5,"oPoints":10,"plusMinus":6,"pointsPlayed":19,"pulls":3,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":1,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":6,"completions":10,"dPlusMinus":1,"dPoints":2,"drops":1,"goals":0,"greatests":0,"id":"0983158E-C9DF-4B56-9C84-2C7061307216","minutesPlayed":0,"name":"Kai","number":"","oPlusMinus":-1,"oPoints":5,"plusMinus":0,"pointsPlayed":7,"pulls":1,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":1,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":4,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":12,"completions":15,"dPlusMinus":0,"dPoints":4,"drops":0,"goals":0,"greatests":0,"id":"E8582A6F-925A-4CA1-9E4B-918A13B4CB55","minutesPlayed":0,"name":"Max","number":"","oPlusMinus":4,"oPoints":4,"plusMinus":4,"pointsPlayed":8,"pulls":1,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":1,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":11,"completions":10,"dPlusMinus":1,"dPoints":4,"drops":0,"goals":2,"greatests":0,"id":"9384EBE3-492E-4FEF-88F1-B4DC6A359809","minutesPlayed":0,"name":"Mike","number":"","oPlusMinus":1,"oPoints":6,"plusMinus":2,"pointsPlayed":10,"pulls":1,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":13,"completions":12,"dPlusMinus":0,"dPoints":4,"drops":0,"goals":4,"greatests":0,"id":"767C5837-4C56-411D-B21F-0F73444E6AB4","minutesPlayed":0,"name":"Nick M","number":"","oPlusMinus":4,"oPoints":4,"plusMinus":4,"pointsPlayed":8,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":9,"completions":7,"dPlusMinus":0,"dPoints":4,"drops":0,"goals":1,"greatests":0,"id":"6CE04389-D9D9-4FBC-BBD7-141DEAA7157B","minutesPlayed":0,"name":"Oscar","number":"","oPlusMinus":-1,"oPoints":2,"plusMinus":-1,"pointsPlayed":6,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":1,"callahansCaught":0,"callahansThrown":0,"catches":19,"completions":19,"dPlusMinus":1,"dPoints":10,"drops":0,"goals":1,"greatests":0,"id":"EE891BE3-8EAB-4F25-B455-644A4DEBDAAB","minutesPlayed":0,"name":"Sarah B","number":"","oPlusMinus":-1,"oPoints":12,"plusMinus":0,"pointsPlayed":22,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":2,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":7,"completions":6,"dPlusMinus":0,"dPoints":5,"drops":0,"goals":1,"greatests":0,"id":"ED3E6DAB-F92F-4EDE-9451-4846EFE76FC6","minutesPlayed":0,"name":"Sarah C","number":"","oPlusMinus":1,"oPoints":5,"plusMinus":1,"pointsPlayed":10,"pulls":4,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":1,"completions":3,"dPlusMinus":0,"dPoints":7,"drops":0,"goals":1,"greatests":0,"id":"0986ACC0-5E71-4E8C-8C89-C940A85EF7D6","minutesPlayed":0,"name":"Sean","number":"","oPlusMinus":1,"oPoints":6,"plusMinus":1,"pointsPlayed":13,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":0,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0},{"assistAttempts":0,"assists":0,"blocks":0,"callahansCaught":0,"callahansThrown":0,"catches":4,"completions":4,"dPlusMinus":0,"dPoints":1,"drops":0,"goals":0,"greatests":0,"id":"34ADE7F4-6E26-41D5-93EA-C5497AEA5182","minutesPlayed":0,"name":"Vic","number":"","oPlusMinus":-1,"oPoints":4,"plusMinus":-1,"pointsPlayed":5,"pulls":0,"pullsIB":0,"pullsOOB":0,"scoredOn":0,"stalls":0,"throwaways":1,"twoPointAssists":0,"twoPointGoals":0,"twoPointTurnovers":0}]}]};
+const STORE_KEY = "ultigoaltistats_edits_v1";
+function loadEdits() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; } }
+function saveEdits(edits) { localStorage.setItem(STORE_KEY, JSON.stringify(edits)); }
+let EDITS = loadEdits();
+
+const NUMERIC_COLUMNS = [
+  ["goals","Goals"], ["assists","Ast"], ["blocks","Ds"], ["drops","Drop"],
+  ["throwaways","T/A"], ["stalls","Stall"], ["plusMinus","+/-"],
+  ["oPlusMinus","O+/-"], ["dPlusMinus","D+/-"], ["callahansCaught","Cal C"],
+  ["callahansThrown","Cal T"], ["twoPointGoals","2PT G"], ["twoPointAssists","2PT A"],
+  ["pulls","Pulls"], ["pointsPlayed","Pts"], ["minutesPlayed","Min"]
+];
+
+function editKey(scope, rowId, field) { return scope + "|" + rowId + "|" + field; }
+
+function cellValue(scope, row, field) {
+  const k = editKey(scope, row.id, field);
+  if (Object.prototype.hasOwnProperty.call(EDITS, k)) return EDITS[k];
+  return row[field];
+}
+
+function buildTable(scope, rows) {
+  const wrap = document.createElement("div");
+  wrap.className = "table-wrap";
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  const nameTh = document.createElement("th");
+  nameTh.textContent = "Player";
+  headRow.appendChild(nameTh);
+  NUMERIC_COLUMNS.forEach(([field, label]) => {
+    const th = document.createElement("th");
+    th.textContent = label;
+    th.dataset.field = field;
+    th.addEventListener("click", () => sortTable(scope, table, field));
+    headRow.appendChild(th);
+  });
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  tbody.dataset.scope = scope;
+  renderRows(scope, tbody, rows);
+  table.appendChild(tbody);
+  table._rows = rows;
+  table._scope = scope;
+  wrap.appendChild(table);
+  return wrap;
+}
+
+function renderRows(scope, tbody, rows) {
+  tbody.innerHTML = "";
+  rows.forEach(row => {
+    const tr = document.createElement("tr");
+    const nameTd = document.createElement("td");
+    nameTd.textContent = row.number ? ("#" + row.number + " " + row.name) : row.name;
+    tr.appendChild(nameTd);
+    NUMERIC_COLUMNS.forEach(([field]) => {
+      const td = document.createElement("td");
+      const val = cellValue(scope, row, field);
+      td.textContent = val;
+      td.dataset.field = field;
+      td.dataset.rowId = row.id;
+      const k = editKey(scope, row.id, field);
+      if (Object.prototype.hasOwnProperty.call(EDITS, k)) td.classList.add("edited");
+      if (field !== "minutesPlayed") {
+        td.contentEditable = "true";
+        td.classList.add("editable");
+        td.addEventListener("blur", () => {
+          const num = parseFloat(td.textContent);
+          if (!isNaN(num)) {
+            EDITS[editKey(scope, row.id, field)] = num;
+            saveEdits(EDITS);
+            td.classList.add("edited");
+          } else {
+            td.textContent = val;
+          }
+        });
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+let sortState = {};
+function sortTable(scope, table, field) {
+  const key = scope + "_" + field;
+  const dir = sortState[key] === "asc" ? "desc" : "asc";
+  sortState = {}; sortState[key] = dir;
+  const rows = table._rows.slice().sort((a, b) => {
+    const av = parseFloat(cellValue(scope, a, field)) || 0;
+    const bv = parseFloat(cellValue(scope, b, field)) || 0;
+    return dir === "asc" ? av - bv : bv - av;
+  });
+  table.querySelectorAll("th").forEach(th => th.classList.remove("sorted", "sorted-asc"));
+  const th = table.querySelector('th[data-field="' + field + '"]');
+  if (th) th.classList.add(dir === "asc" ? "sorted-asc" : "sorted");
+  renderRows(scope, table.querySelector("tbody"), rows);
+}
+
+function exportEditedCSV(scope, rows, filename) {
+  const header = ["Player"].concat(NUMERIC_COLUMNS.map(c => c[1]));
+  const lines = [header.join(",")];
+  rows.forEach(row => {
+    const line = [row.number ? ("#" + row.number + " " + row.name) : row.name];
+    NUMERIC_COLUMNS.forEach(([field]) => line.push(cellValue(scope, row, field)));
+    lines.push(line.join(","));
+  });
+  const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function summaryCards(items) {
+  const wrap = document.createElement("div");
+  wrap.className = "summary-cards";
+  items.forEach(([label, value]) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = '<div class="label"></div><div class="value"></div>';
+    card.querySelector(".label").textContent = label;
+    card.querySelector(".value").textContent = value;
+    wrap.appendChild(card);
+  });
+  return wrap;
+}
+
+function buildApp() {
+  const app = document.getElementById("app");
+
+  const header = document.createElement("header");
+  header.innerHTML = "<h1></h1><p></p>";
+  header.querySelector("h1").textContent = DATA.teamName + " — Stats";
+  header.querySelector("p").textContent = "Generated " + DATA.generatedAt + " · edits below are saved in this browser only";
+  if (DATA.sheetsURL) {
+    const link = document.createElement("a");
+    link.href = DATA.sheetsURL;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.className = "sheets-link";
+    link.textContent = "Open editable Google Sheet ↗";
+    header.appendChild(link);
+  }
+  app.appendChild(header);
+
+  const tabs = document.createElement("div");
+  tabs.className = "tabs";
+  const tabDefs = [["lifetime","Lifetime"], ["tournaments","Tournaments"], ["games","Games"], ["team","Team"]];
+  const panels = {};
+
+  tabDefs.forEach(([key, label], i) => {
+    const btn = document.createElement("button");
+    btn.className = "tab" + (i === 0 ? " active" : "");
+    btn.textContent = label;
+    btn.addEventListener("click", () => {
+      tabs.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      btn.classList.add("active");
+      Object.values(panels).forEach(p => p.classList.remove("active"));
+      panels[key].classList.add("active");
+    });
+    tabs.appendChild(btn);
+  });
+  app.appendChild(tabs);
+
+  // Lifetime panel
+  const lifetimePanel = document.createElement("div");
+  lifetimePanel.className = "panel active";
+  const lifeToolbar = document.createElement("div");
+  lifeToolbar.className = "toolbar";
+  const lifeExportBtn = document.createElement("button");
+  lifeExportBtn.className = "action";
+  lifeExportBtn.textContent = "Export Edited CSV";
+  lifeExportBtn.addEventListener("click", () => exportEditedCSV("lifetime", DATA.lifetime, "lifetime_stats.csv"));
+  lifeToolbar.appendChild(lifeExportBtn);
+  lifetimePanel.appendChild(lifeToolbar);
+  const lifeHint = document.createElement("div");
+  lifeHint.className = "hint";
+  lifeHint.textContent = "Tap any number to edit it (saved in this browser only).";
+  lifetimePanel.appendChild(lifeHint);
+  lifetimePanel.appendChild(buildTable("lifetime", DATA.lifetime));
+  panels.lifetime = lifetimePanel;
+  app.appendChild(lifetimePanel);
+
+  // Tournaments panel
+  const tournamentsPanel = document.createElement("div");
+  tournamentsPanel.className = "panel";
+  const tSelect = document.createElement("select");
+  DATA.tournaments.forEach(t => {
+    const opt = document.createElement("option");
+    opt.value = t.name; opt.textContent = t.name + " (" + t.gameCount + " games)";
+    tSelect.appendChild(opt);
+  });
+  tournamentsPanel.appendChild(tSelect);
+  const tTableHolder = document.createElement("div");
+  tournamentsPanel.appendChild(tTableHolder);
+  function renderTournament() {
+    const t = DATA.tournaments.find(x => x.name === tSelect.value) || DATA.tournaments[0];
+    tTableHolder.innerHTML = "";
+    if (!t) return;
+    const toolbar = document.createElement("div");
+    toolbar.className = "toolbar";
+    const btn = document.createElement("button");
+    btn.className = "action";
+    btn.textContent = "Export Edited CSV";
+    btn.addEventListener("click", () => exportEditedCSV("tournament_" + t.name, t.players, t.name + "_stats.csv"));
+    toolbar.appendChild(btn);
+    tTableHolder.appendChild(toolbar);
+    tTableHolder.appendChild(buildTable("tournament_" + t.name, t.players));
+  }
+  tSelect.addEventListener("change", renderTournament);
+  if (DATA.tournaments.length) renderTournament();
+  panels.tournaments = tournamentsPanel;
+  app.appendChild(tournamentsPanel);
+
+  // Games panel
+  const gamesPanel = document.createElement("div");
+  gamesPanel.className = "panel";
+  const gSelect = document.createElement("select");
+  DATA.games.slice().reverse().forEach(g => {
+    const opt = document.createElement("option");
+    opt.value = g.id; opt.textContent = g.label;
+    gSelect.appendChild(opt);
+  });
+  gamesPanel.appendChild(gSelect);
+  const gTableHolder = document.createElement("div");
+  gamesPanel.appendChild(gTableHolder);
+  function renderGame() {
+    const g = DATA.games.find(x => x.id === gSelect.value) || DATA.games[DATA.games.length - 1];
+    gTableHolder.innerHTML = "";
+    if (!g) return;
+    const toolbar = document.createElement("div");
+    toolbar.className = "toolbar";
+    const btn = document.createElement("button");
+    btn.className = "action";
+    btn.textContent = "Export Edited CSV";
+    btn.addEventListener("click", () => exportEditedCSV("game_" + g.id, g.players, g.opponent + "_" + g.date + ".csv"));
+    toolbar.appendChild(btn);
+    gTableHolder.appendChild(toolbar);
+    gTableHolder.appendChild(buildTable("game_" + g.id, g.players));
+  }
+  gSelect.addEventListener("change", renderGame);
+  if (DATA.games.length) renderGame();
+  panels.games = gamesPanel;
+  app.appendChild(gamesPanel);
+
+  // Team panel
+  const teamPanel = document.createElement("div");
+  teamPanel.className = "panel";
+  const t = DATA.team;
+  teamPanel.appendChild(summaryCards([
+    ["Games", t.gamesPlayed], ["Record", t.wins + "-" + t.losses + "-" + t.ties],
+    ["Points For", t.pointsFor], ["Points Against", t.pointsAgainst],
+    ["Differential", (t.pointsFor - t.pointsAgainst >= 0 ? "+" : "") + (t.pointsFor - t.pointsAgainst)]
+  ]));
+  if (DATA.tournamentSummaries.length) {
+    const h2 = document.createElement("h3");
+    h2.textContent = "By Tournament";
+    h2.style.marginTop = "20px";
+    teamPanel.appendChild(h2);
+    const wrap = document.createElement("div");
+    wrap.className = "table-wrap";
+    const table = document.createElement("table");
+    table.innerHTML = "<thead><tr><th>Tournament</th><th>GP</th><th>W</th><th>L</th><th>T</th><th>PF</th><th>PA</th></tr></thead>";
+    const tbody = document.createElement("tbody");
+    DATA.tournamentSummaries.forEach(ts => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = "<td>" + ts.name + "</td><td>" + ts.gamesPlayed + "</td><td>" + ts.wins + "</td><td>" + ts.losses + "</td><td>" + ts.ties + "</td><td>" + ts.pointsFor + "</td><td>" + ts.pointsAgainst + "</td>";
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    teamPanel.appendChild(wrap);
+  }
+  panels.team = teamPanel;
+  app.appendChild(teamPanel);
+}
+
+buildApp();
+</script>
+</body>
+</html>
